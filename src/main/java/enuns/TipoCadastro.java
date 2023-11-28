@@ -1,4 +1,4 @@
-package model.enuns;
+package enuns;
 
 import lombok.Getter;
 
@@ -7,6 +7,8 @@ public enum TipoCadastro {
     CLIENTE("Cliente"),
     MOTOBOY("Motoboy"),
     PEDIDO("Pedido"),
+    ENTREGA("Entrega"),
+    ENDERECO("Endereço"),
     SAIR("Sair");
 
     private final String nome;

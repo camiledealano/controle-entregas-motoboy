@@ -1,9 +1,7 @@
 package apresentation;
 
-import model.enuns.TipoCadastro;
-import repository.ClienteRepository;
-import repository.MotoboyRepository;
-import repository.PedidoRepository;
+import enuns.TipoCadastro;
+import repository.*;
 
 import javax.swing.*;
 
@@ -22,6 +20,12 @@ public class Menu {
                     MotoboyRepository.crud();
                 case PEDIDO:
                     PedidoRepository.crud();
+                    break;
+                case ENTREGA:
+                    EntregaRepository.crud();
+                    break;
+                case ENDERECO:
+                    EnderecoRepository.crud();
                     break;
                 case SAIR:
                     sair = true;
