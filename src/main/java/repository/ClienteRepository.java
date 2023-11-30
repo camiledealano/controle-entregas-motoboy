@@ -66,6 +66,7 @@ public class ClienteRepository {
     }
 
     private static void editar(String id) {
+        if (isValidObjectId(id)){
         Bson filtro = Filters.eq("_id", new ObjectId(id));
         Document clienteExistente = collection.find(filtro).first();
 
@@ -86,10 +87,14 @@ public class ClienteRepository {
             JOptionPane.showMessageDialog(null, "Cliente editado com sucesso!");
         } else {
             JOptionPane.showMessageDialog(null, "Cliente não encontrado.");
+        }  } else {
+            JOptionPane.showMessageDialog(null, "ID inválido. Certifique-se de fornecer um Object ID válido.");
         }
     }
 
+
     private static void remover(String id) {
+        if (isValidObjectId(id)){
         Bson filtro = Filters.eq("_id", new ObjectId(id));
         Document clienteExistente = collection.find(filtro).first();
 
@@ -98,6 +103,21 @@ public class ClienteRepository {
             JOptionPane.showMessageDialog(null, "Cliente removido com sucesso!");
         } else {
             JOptionPane.showMessageDialog(null, "Cliente não encontrado.");
+        } } else {
+            JOptionPane.showMessageDialog(null, "ID inválido. Certifique-se de fornecer um Object ID válido.");
+        }
+    }
+
+    private static boolean isValidObjectId(String id) {
+        if (id == null || id.length() != 24) {
+        return false;
+    }
+
+        try {
+            new ObjectId(id);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
         }
     }
 
