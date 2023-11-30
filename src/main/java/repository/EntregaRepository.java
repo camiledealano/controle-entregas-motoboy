@@ -41,6 +41,7 @@ public class EntregaRepository {
     }
 
     private static void editar(String idEntrega) {
+        if (isValidObjectId(idEntrega)) {
         if (entregaExiste(idEntrega)) {
             String novoIdCliente = JOptionPane.showInputDialog("Informe o novo identificador do cliente:");
             String novoIdMotoboy = JOptionPane.showInputDialog("Informe o novo identificador do motoboy:");
@@ -60,29 +61,36 @@ public class EntregaRepository {
         } else {
             JOptionPane.showMessageDialog(null, "Entrega não encontrada.");
         }
-
+        } else {
+            JOptionPane.showMessageDialog(null, "ID inválido. Certifique-se de fornecer um Object ID válido.");
+        }
     }
 
     private static void consultar() {
         FindIterable<Document> documentos = collection.find();
 
         for (Document documento : documentos) {
-            String id = documento.getObjectId("_id").toString();
+            String idDocumento = documento.getObjectId("_id").toString();
             String idCliente = documento.getString("idCliente");
             String idMotoboy = documento.getString("idMotoboy");
             String status = documento.getString("status");
             String dtEntrega = documento.getString("dtEntrega");
             String comentarioCliente = documento.getString("comentarioCliente");
 
-            System.out.println("Identificador: " + id);
-            System.out.println("Identificador do cliente: " + idCliente);
-            System.out.println("Identificador do motoboy: " + idMotoboy);
-            System.out.println("Status: " + status);
-            System.out.println("Data da entrega: " + dtEntrega);
-            System.out.println("Comentário do cliente: " + comentarioCliente);
-            System.out.println("------------------------------");
+            if (isValidObjectId(idDocumento)) {
+                System.out.println("Identificador: " + idDocumento);
+                System.out.println("Identificador do cliente: " + idCliente);
+                System.out.println("Identificador do motoboy: " + idMotoboy);
+                System.out.println("Status: " + status);
+                System.out.println("Data da entrega: " + dtEntrega);
+                System.out.println("Comentário do cliente: " + comentarioCliente);
+                System.out.println("------------------------------");
+            } else {
+                JOptionPane.showMessageDialog(null, "ID inválido: " + idDocumento);
+            }
         }
     }
+
 
     public static void criarEntrega(Document pedidoDocument) {
         String idCliente =  pedidoDocument.getString("idCliente");
@@ -110,5 +118,18 @@ public class EntregaRepository {
 
     private static Bson getFiltro(String id) {
         return  Filters.eq("_id", new ObjectId(id));
+    }
+
+    private static boolean isValidObjectId(String id) {
+        if (id == null || id.length() != 24) {
+            return false;
+        }
+
+        try {
+            new ObjectId(id);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 }

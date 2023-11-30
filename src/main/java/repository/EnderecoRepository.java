@@ -70,7 +70,7 @@ public class EnderecoRepository {
     }
 
     private static void editar(String id) {
-        if (enderecoExiste(id)) {
+        if (isValidObjectId(id) && enderecoExiste(id)) {
             String novoLogradouro = JOptionPane.showInputDialog("Informe o novo logradouro:");
             String novoCep = JOptionPane.showInputDialog("Informe o novo cep:");
             Integer novoNumero = Integer.parseInt(JOptionPane.showInputDialog("Informe o novo número:"));
@@ -92,16 +92,16 @@ public class EnderecoRepository {
 
             JOptionPane.showMessageDialog(null, "Endereço editado com sucesso!");
         } else {
-            JOptionPane.showMessageDialog(null, "Endereço não encontrado.");
+            JOptionPane.showMessageDialog(null, "Id inválido ou Endereço não encontrado.");
         }
     }
 
     private static void remover(String id) {
-        if (enderecoExiste(id)) {
+        if (isValidObjectId(id) && enderecoExiste(id)) {
             collection.deleteOne(getFiltro(id));
             JOptionPane.showMessageDialog(null, "Endereço removido com sucesso!");
         } else {
-            JOptionPane.showMessageDialog(null, "Endereço não encontrado.");
+            JOptionPane.showMessageDialog(null, "ID inválido ou Endereço não encontrado.");
         }
     }
 
@@ -118,17 +118,22 @@ public class EnderecoRepository {
             String estado = documento.getString("estado");
             String pais = documento.getString("pais");
 
-            System.out.println("Identificador: " + id);
-            System.out.println("Logradouro: " + logradouro);
-            System.out.println("CEP: " + cep);
-            System.out.println("Número: " + numero);
-            System.out.println("Bairro: " + bairro);
-            System.out.println("Cidade: " + cidade);
-            System.out.println("Estado: " + estado);
-            System.out.println("País: " + pais);
-            System.out.println("------------------------------");
+            if (isValidObjectId(id)) {
+                System.out.println("Identificador: " + id);
+                System.out.println("Logradouro: " + logradouro);
+                System.out.println("CEP: " + cep);
+                System.out.println("Número: " + numero);
+                System.out.println("Bairro: " + bairro);
+                System.out.println("Cidade: " + cidade);
+                System.out.println("Estado: " + estado);
+                System.out.println("País: " + pais);
+                System.out.println("------------------------------");
+            } else {
+                JOptionPane.showMessageDialog(null, "ID inválido: " + id);
+            }
         }
     }
+
 
     private static boolean enderecoExiste(String id) {
         Document endereco = collection.find(getFiltro(id)).first();
@@ -138,5 +143,17 @@ public class EnderecoRepository {
     private static Bson getFiltro(String id){
         return Filters.eq("_id", new ObjectId(id));
     }
+    private static boolean isValidObjectId(String id) {
+        if (id == null || id.length() != 24) {
+            return false;
+        }
 
+        try {
+            new ObjectId(id);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
 }
+

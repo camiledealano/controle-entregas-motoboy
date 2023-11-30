@@ -81,6 +81,7 @@ public class PedidoRepository {
     }
 
     private static void editar(String id) {
+        if (isValidObjectId(id)) {
         if (pedidoExiste(id)) {
             String novoIdCliente = JOptionPane.showInputDialog("Informe o novo identificador do cliente:");
             String novoItem = JOptionPane.showInputDialog("Informe o novo item:");
@@ -105,16 +106,20 @@ public class PedidoRepository {
             }
         } else {
             JOptionPane.showMessageDialog(null, "Pedido não encontrado.");
+        }} else {JOptionPane.showMessageDialog(null, "ID inválido. Certifique-se de fornecer um Object ID válido.");
         }
     }
 
     private static void remover(String id) {
+        if (isValidObjectId(id)){
         if (pedidoExiste(id)) {
             collection.deleteOne(getFiltro(id));
             JOptionPane.showMessageDialog(null, "Pedido removido com sucesso!");
         } else {
             JOptionPane.showMessageDialog(null, "Pedido não encontrado.");
+        }} else {JOptionPane.showMessageDialog(null, "ID inválido. Certifique-se de fornecer um Object ID válido.");
         }
+
     }
 
     private static void consultar() {
@@ -165,5 +170,16 @@ public class PedidoRepository {
     private static Bson getFiltro(String id){
         return Filters.eq("_id", new ObjectId(id));
     }
+    private static boolean isValidObjectId(String id) {
+        if (id == null || id.length() != 24) {
+            return false;
+        }
 
+        try {
+            new ObjectId(id);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
 }

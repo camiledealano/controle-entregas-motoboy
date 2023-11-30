@@ -18,7 +18,7 @@ public class ClienteRepository {
         boolean sair = false;
 
         while (!sair) {
-            String[] options = { "Adicionar", "Editar", "Remover", "Consultar", "Voltar" };
+            String[] options = {"Adicionar", "Editar", "Remover", "Consultar", "Voltar"};
 
             int opcao = JOptionPane.showOptionDialog(null, "Escolha uma opção para cliente: ",
                     "Menu Cliente", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
@@ -66,52 +66,54 @@ public class ClienteRepository {
     }
 
     private static void editar(String id) {
-        if (isValidObjectId(id)){
-        Bson filtro = Filters.eq("_id", new ObjectId(id));
-        Document clienteExistente = collection.find(filtro).first();
+        if (isValidObjectId(id)) {
+            Bson filtro = Filters.eq("_id", new ObjectId(id));
+            Document clienteExistente = collection.find(filtro).first();
 
-        if (clienteExistente != null) {
-            String novoNome = JOptionPane.showInputDialog("Informe o novo nome:");
-            String novoCpf = JOptionPane.showInputDialog("Informe o novo CPF:");
-            String novoTelefone = JOptionPane.showInputDialog("Informe o novo telefone:");
-            String novoEmail = JOptionPane.showInputDialog("Informe o novo e-mail:");
+            if (clienteExistente != null) {
+                String novoNome = JOptionPane.showInputDialog("Informe o novo nome:");
+                String novoCpf = JOptionPane.showInputDialog("Informe o novo CPF:");
+                String novoTelefone = JOptionPane.showInputDialog("Informe o novo telefone:");
+                String novoEmail = JOptionPane.showInputDialog("Informe o novo e-mail:");
 
-            Document clienteAtualizado = new Document()
-                    .append("nome", novoNome)
-                    .append("cpf", novoCpf)
-                    .append("telefone", novoTelefone)
-                    .append("email", novoEmail);
+                Document clienteAtualizado = new Document()
+                        .append("nome", novoNome)
+                        .append("cpf", novoCpf)
+                        .append("telefone", novoTelefone)
+                        .append("email", novoEmail);
 
-            collection.replaceOne(filtro, clienteAtualizado);
+                collection.replaceOne(filtro, clienteAtualizado);
 
-            JOptionPane.showMessageDialog(null, "Cliente editado com sucesso!");
+                JOptionPane.showMessageDialog(null, "Cliente editado com sucesso!");
+            } else {
+                JOptionPane.showMessageDialog(null, "Cliente não encontrado.");
+            }
         } else {
-            JOptionPane.showMessageDialog(null, "Cliente não encontrado.");
-        }  } else {
             JOptionPane.showMessageDialog(null, "ID inválido. Certifique-se de fornecer um Object ID válido.");
         }
     }
 
 
     private static void remover(String id) {
-        if (isValidObjectId(id)){
-        Bson filtro = Filters.eq("_id", new ObjectId(id));
-        Document clienteExistente = collection.find(filtro).first();
+        if (isValidObjectId(id)) {
+            Bson filtro = Filters.eq("_id", new ObjectId(id));
+            Document clienteExistente = collection.find(filtro).first();
 
-        if (clienteExistente != null) {
-            collection.deleteOne(filtro);
-            JOptionPane.showMessageDialog(null, "Cliente removido com sucesso!");
+            if (clienteExistente != null) {
+                collection.deleteOne(filtro);
+                JOptionPane.showMessageDialog(null, "Cliente removido com sucesso!");
+            } else {
+                JOptionPane.showMessageDialog(null, "Cliente não encontrado.");
+            }
         } else {
-            JOptionPane.showMessageDialog(null, "Cliente não encontrado.");
-        } } else {
             JOptionPane.showMessageDialog(null, "ID inválido. Certifique-se de fornecer um Object ID válido.");
         }
     }
 
     private static boolean isValidObjectId(String id) {
         if (id == null || id.length() != 24) {
-        return false;
-    }
+            return false;
+        }
 
         try {
             new ObjectId(id);
@@ -122,22 +124,29 @@ public class ClienteRepository {
     }
 
     private static void consultar() {
-        FindIterable<Document> documentos = collection.find();
+        // Solicita ao usuário que insira um ID válido
+        String idConsulta = JOptionPane.showInputDialog("Digite o ID para consultar:");
 
-        for (Document documento : documentos) {
-            String id = documento.getObjectId("_id").toString();
-            String nome = documento.getString("nome");
-            String cpf = documento.getString("cpf");
-            String telefone = documento.getString("telefone");
-            String email = documento.getString("email");
+        if (isValidObjectId(idConsulta)) {
+            FindIterable<Document> documentos = collection.find();
 
-            System.out.println("Identificador: " + id);
-            System.out.println("Nome: " + nome);
-            System.out.println("CPF: " + cpf);
-            System.out.println("Telefone: " + telefone);
-            System.out.println("E-mail: " + email);
-            System.out.println("------------------------------");
+            for (Document documento : documentos) {
+                String id = documento.getObjectId("_id").toString();
+                String nome = documento.getString("nome");
+                String cpf = documento.getString("cpf");
+                String telefone = documento.getString("telefone");
+                String email = documento.getString("email");
+
+                System.out.println("Identificador: " + id);
+                System.out.println("Nome: " + nome);
+                System.out.println("CPF: " + cpf);
+                System.out.println("Telefone: " + telefone);
+                System.out.println("E-mail: " + email);
+                System.out.println("------------------------------");
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "ID inválido. Certifique-se de fornecer um Object ID válido.");
         }
+
     }
 }
-
