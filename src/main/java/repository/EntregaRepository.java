@@ -40,27 +40,47 @@ public class EntregaRepository {
         }
     }
 
-    private static void editar(String idEntrega) {
-        if (isValidObjectId(idEntrega)) {
-        if (entregaExiste(idEntrega)) {
-            String novoIdCliente = JOptionPane.showInputDialog("Informe o novo identificador do cliente:");
-            String novoIdMotoboy = JOptionPane.showInputDialog("Informe o novo identificador do motoboy:");
-            String novoStatus = JOptionPane.showInputDialog("Informe o novo status da entrega (A ou E):");
-            String novaDtEntrega = JOptionPane.showInputDialog("Informe a nova data de entrega:");
-            String novoComentarioCliente = JOptionPane.showInputDialog("Informe o novo comentário do cliente:");
+    private static String obterInputCancelamento(String mensagem) {
+        String input = JOptionPane.showInputDialog(mensagem);
 
-            Document entregaAtualizada = new Document()
-                    .append("idCliente", novoIdCliente)
-                    .append("idMotoboy", novoIdMotoboy)
-                    .append("status", novoStatus)
-                    .append("dtEntrega", novaDtEntrega)
-                    .append("comentarioCliente", novoComentarioCliente);
-
-            collection.replaceOne(getFiltro(idEntrega), entregaAtualizada);
-            JOptionPane.showMessageDialog(null, "Entrega editada com sucesso!");
-        } else {
-            JOptionPane.showMessageDialog(null, "Entrega não encontrada.");
+        if (input == null) {
+            JOptionPane.showMessageDialog(null, "Operação cancelada pelo usuário.");
         }
+
+        return input;
+    }
+    private static void editar(String idEntrega) {
+        if (idEntrega == null) {
+            JOptionPane.showMessageDialog(null, "Operação cancelada pelo usuário.");
+            return;
+        }
+        if (isValidObjectId(idEntrega)) {
+            Bson filtro = getFiltro(idEntrega);
+            Document entregaExistente = collection.find(filtro).first();
+
+            if (entregaExistente != null) {
+                String novoIdCliente = obterInputCancelamento("Informe o novo identificador do cliente:");
+                String novoIdMotoboy = obterInputCancelamento("Informe o novo identificador do motoboy:");
+                String novoStatus = obterInputCancelamento("Informe o novo status da entrega (A ou E):");
+                String novaDtEntrega = obterInputCancelamento("Informe a nova data de entrega:");
+                String novoComentarioCliente = obterInputCancelamento("Informe o novo comentário do cliente:");
+
+
+                if (novoIdCliente != null && novoIdMotoboy != null && novoStatus != null && novaDtEntrega != null && novoComentarioCliente != null) {
+                    Document entregaAtualizada = new Document()
+                            .append("idCliente", novoIdCliente)
+                            .append("idMotoboy", novoIdMotoboy)
+                            .append("status", novoStatus)
+                            .append("dtEntrega", novaDtEntrega)
+                            .append("comentarioCliente", novoComentarioCliente);
+
+                    collection.replaceOne(filtro, entregaAtualizada);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Operação cancelada pelo usuário.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Entrega não encontrada.");
+            }
         } else {
             JOptionPane.showMessageDialog(null, "ID inválido. Certifique-se de fornecer um Object ID válido.");
         }

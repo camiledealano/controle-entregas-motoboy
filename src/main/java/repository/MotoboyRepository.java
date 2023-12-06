@@ -42,51 +42,84 @@ public class MotoboyRepository {
                     sair = true;
                     break;
             }
+            if (sair) {
+                break;
+            }
         }
+    }
+
+    private static String obterInputCancelamento(String mensagem) {
+        String input = JOptionPane.showInputDialog(mensagem);
+
+        if (input == null) {
+            JOptionPane.showMessageDialog(null, "Operação cancelada pelo usuário.");
+            return null;
+        }
+
+        return input;
     }
 
     private static void adicionar() {
         String nome = JOptionPane.showInputDialog("Cadastro de motoboy \n\n Informe o nome:");
-        String cpf = JOptionPane.showInputDialog("Cadastro de motoboy \n\n Informe o cpf:");
-        String telefone = JOptionPane.showInputDialog("Cadastro de motoboy \n\n Informe o telefone:");
-        String placaMoto = JOptionPane.showInputDialog("Cadastro de motoboy \n\n Informe a placa da moto:");
-        String disponivel = JOptionPane.showInputDialog("Cadastro de motoboy \n\n Está disponível? (S ou N):");
 
+        if (nome != null) {
+            String cpf = JOptionPane.showInputDialog("Cadastro de motoboy \n\n Informe o cpf:");
+            String telefone = JOptionPane.showInputDialog("Cadastro de motoboy \n\n Informe o telefone:");
+            String placaMoto = JOptionPane.showInputDialog("Cadastro de motoboy \n\n Informe a placa da moto:");
+            String disponivel = JOptionPane.showInputDialog("Cadastro de motoboy \n\n Está disponível? (S ou N):");
 
-        Document motoboyDocument = new Document()
-                .append("nome", nome)
-                .append("cpf", cpf)
-                .append("telefone", telefone)
-                .append("placaMoto", placaMoto)
-                .append("disponivel", disponivel);
+            if (cpf != null && telefone != null && placaMoto != null && disponivel != null) {
+                Document motoboyDocument = new Document()
+                        .append("nome", nome)
+                        .append("cpf", cpf)
+                        .append("telefone", telefone)
+                        .append("placaMoto", placaMoto)
+                        .append("disponivel", disponivel);
 
-        try {
-            collection.insertOne(motoboyDocument);
-            JOptionPane.showMessageDialog(null, "Motoboy inserido com sucesso!");
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+                try {
+                    // Assumindo que 'motoboyCollection' é o nome real da coleção para motoboys
+                    collection.insertOne(motoboyDocument);
+                    JOptionPane.showMessageDialog(null, "Motoboy inserido com sucesso!");
+                } catch (Exception e) {
+                    System.out.println("Erro ao inserir motoboy: " + e.getMessage());
+                }
+            } else {
+                // Usuário clicou em Cancelar durante a entrada de CPF, telefone, placa da moto ou disponibilidade
+                JOptionPane.showMessageDialog(null, "Operação cancelada pelo usuário.");
+            }
+        } else {
+            // Usuário clicou em Cancelar durante a entrada do nome
+            JOptionPane.showMessageDialog(null, "Operação cancelada pelo usuário.");
         }
     }
 
+
     private static void editar(String id) {
+        if (id == null) {
+            JOptionPane.showMessageDialog(null, "Operação cancelada pelo usuário.");
+            return;
+        }
         if (isValidObjectId(id)) {
             if (motoboyExiste(id)) {
-                String novoNome = JOptionPane.showInputDialog("Informe o novo nome:");
-                String novoCpf = JOptionPane.showInputDialog("Informe o novo CPF:");
-                String novoTelefone = JOptionPane.showInputDialog("Informe o novo telefone:");
-                String novaPlaca = JOptionPane.showInputDialog("Informe a nova placa da moto:");
-                String disponivel = JOptionPane.showInputDialog("Informe a nova disponibilidade (S ou N):");
+                String novoNome = obterInputCancelamento("Informe o novo nome:");
+                String novoCpf = obterInputCancelamento("Informe o novo CPF:");
+                String novoTelefone = obterInputCancelamento("Informe o novo telefone:");
+                String novaPlaca = obterInputCancelamento("Informe a nova placa da moto:");
+                String disponivel = obterInputCancelamento("Informe a nova disponibilidade (S ou N):");
 
-                Document motoboyAtualizado = new Document()
-                        .append("nome", novoNome)
-                        .append("cpf", novoCpf)
-                        .append("telefone", novoTelefone)
-                        .append("placaMoto", novaPlaca)
-                        .append("disponivel", disponivel);
 
-                collection.replaceOne(getFiltro(id), motoboyAtualizado);
+                if (novoNome != null && novoCpf != null && novoTelefone != null && novaPlaca != null && disponivel != null) {
+                    Document motoboyAtualizado = new Document()
+                            .append("nome", novoNome)
+                            .append("cpf", novoCpf)
+                            .append("telefone", novoTelefone)
+                            .append("placaMoto", novaPlaca)
+                            .append("disponivel", disponivel);
 
-                JOptionPane.showMessageDialog(null, "Motoboy editado com sucesso!");
+                    collection.replaceOne(getFiltro(id), motoboyAtualizado);
+
+                    JOptionPane.showMessageDialog(null, "Motoboy editado com sucesso!");
+                }
             } else {
                 JOptionPane.showMessageDialog(null, "Motoboy não encontrado.");
             }
@@ -97,6 +130,10 @@ public class MotoboyRepository {
 
 
     private static void remover(String id) {
+        if (id == null) {
+            JOptionPane.showMessageDialog(null, "Operação cancelada pelo usuário.");
+            return;
+        }
         if(isValidObjectId(id)) {
             if (motoboyExiste(id)) {
                 collection.deleteOne(getFiltro(id));

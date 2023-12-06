@@ -45,10 +45,26 @@ public class PedidoRepository {
                     sair = true;
                     break;
             }
+            if (sair) {
+                break;
+            }
         }
+    }
+
+    private static String obterInputCancelamento(String mensagem) {
+        String input = JOptionPane.showInputDialog(mensagem);
+
+        if (input == null) {
+            JOptionPane.showMessageDialog(null, "Operação cancelada pelo usuário.");
+            return null;
+        }
+
+        return input;
     }
     private static void adicionar() {
         String idCliente = JOptionPane.showInputDialog("Cadastro de pedido \n\n Informe o identificador do cliente:");
+
+        if(idCliente!= null) {
         String item = JOptionPane.showInputDialog("Cadastro de pedido \n\n Qual item você gostaria de realizar entrega?");
         String endereco = JOptionPane.showInputDialog("Cadastro de pedido \n\n Informe o códido do endereço:");
         String observacoesAux = JOptionPane.showInputDialog("Cadastro de pedido \n\n Observações:");
@@ -77,19 +93,25 @@ public class PedidoRepository {
 
             EntregaRepository.criarEntrega(pedidoSemMotoboy);
             JOptionPane.showMessageDialog(null, "Nenhum motoboy disponível no momento.");
+        }}else {
+            JOptionPane.showMessageDialog(null, "Operação cancelada pelo usuário.");
         }
-    }
+  }
 
     private static void editar(String id) {
+        if (id == null) {
+            JOptionPane.showMessageDialog(null, "Operação cancelada pelo usuário.");
+            return;
+        }
         if (isValidObjectId(id)) {
-        if (pedidoExiste(id)) {
-            String novoIdCliente = JOptionPane.showInputDialog("Informe o novo identificador do cliente:");
-            String novoItem = JOptionPane.showInputDialog("Informe o novo item:");
-            String novoEndereco = JOptionPane.showInputDialog("Informe o novo código do endereço:");
-            String novaObservacao = JOptionPane.showInputDialog("Informe a nova observação:");
-            String idMotoboy = getIdAleatorioMotoboyDisponivel();
+            if (pedidoExiste(id)) {
+                String novoIdCliente = obterInputCancelamento("Informe o novo identificador do cliente:");
+                String novoItem = obterInputCancelamento("Informe o novo item:");
+                String novoEndereco = obterInputCancelamento("Informe o novo código do endereço:");
+                String novaObservacao = obterInputCancelamento("Informe a nova observação:");
+                String idMotoboy = getIdAleatorioMotoboyDisponivel();
 
-            if (idMotoboy != null) {
+                if (novoIdCliente != null && novoItem != null && novoEndereco != null && novaObservacao != null && idMotoboy != null) {
                 Document pedidoAtualizado = new Document()
                         .append("idCliente", novoIdCliente)
                         .append("nome", novoItem)
@@ -97,24 +119,34 @@ public class PedidoRepository {
                         .append("novaObservacao", novaObservacao)
                         .append("idMotoboy", idMotoboy);
 
-                collection.replaceOne(getFiltro(id), pedidoAtualizado);
-
-                JOptionPane.showMessageDialog(null, "Pedido editado com sucesso!");
+                    try {
+                        collection.replaceOne(getFiltro(id), pedidoAtualizado);
+                        JOptionPane.showMessageDialog(null, "Pedido editado com sucesso!");
+                    } catch (Exception e) {
+                        System.out.println("Erro ao editar pedido: " + e.getMessage());
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "Operação cancelada pelo usuário.");
+                }
             } else {
-                JOptionPane.showMessageDialog(null, "Nenhum motoboy disponível no momento.");
-
+                JOptionPane.showMessageDialog(null, "Pedido não encontrado.");
             }
         } else {
-            JOptionPane.showMessageDialog(null, "Pedido não encontrado.");
-        }} else {JOptionPane.showMessageDialog(null, "ID inválido. Certifique-se de fornecer um Object ID válido.");
+            JOptionPane.showMessageDialog(null, "ID inválido. Certifique-se de fornecer um Object ID válido.");
         }
     }
-
     private static void remover(String id) {
-        if (isValidObjectId(id)){
+        if (id == null) {
+            JOptionPane.showMessageDialog(null, "Operação cancelada pelo usuário.");
+            return;
+        } if (isValidObjectId(id)){
         if (pedidoExiste(id)) {
-            collection.deleteOne(getFiltro(id));
-            JOptionPane.showMessageDialog(null, "Pedido removido com sucesso!");
+            try {
+                collection.deleteOne(getFiltro(id));
+                JOptionPane.showMessageDialog(null, "Pedido removido com sucesso!");
+            } catch (Exception e) {
+                System.out.println("Erro ao remover pedido: " + e.getMessage());
+            }
         } else {
             JOptionPane.showMessageDialog(null, "Pedido não encontrado.");
         }} else {JOptionPane.showMessageDialog(null, "ID inválido. Certifique-se de fornecer um Object ID válido.");

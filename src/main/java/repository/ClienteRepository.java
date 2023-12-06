@@ -42,49 +42,81 @@ public class ClienteRepository {
                     sair = true;
                     break;
             }
+            if (sair) {
+                break;
+            }
         }
     }
 
+    private static String obterInputCancelamento(String mensagem) {
+        String input = JOptionPane.showInputDialog(mensagem);
+
+        if (input == null) {
+            JOptionPane.showMessageDialog(null, "Operação cancelada pelo usuário.");
+            return null;
+        }
+
+        return input;
+    }
     private static void adicionar() {
         String nome = JOptionPane.showInputDialog("Cadastro de cliente \n\n Informe o nome:");
-        String cpf = JOptionPane.showInputDialog("Cadastro de cliente \n\n Informe o cpf:");
-        String telefone = JOptionPane.showInputDialog("Cadastro de cliente \n\n Informe o telefone:");
-        String email = JOptionPane.showInputDialog("Cadastro de cliente \n\n Informe o e-mail:");
 
-        Document clienteDocument = new Document()
-                .append("nome", nome)
-                .append("cpf", cpf)
-                .append("telefone", telefone)
-                .append("email", email);
+        if (nome != null) {
+            String cpf = JOptionPane.showInputDialog("Cadastro de cliente \n\n Informe o cpf:");
+            String telefone = JOptionPane.showInputDialog("Cadastro de cliente \n\n Informe o telefone:");
+            String email = JOptionPane.showInputDialog("Cadastro de cliente \n\n Informe o e-mail:");
 
-        try {
-            collection.insertOne(clienteDocument);
-            JOptionPane.showMessageDialog(null, "Cliente inserido com sucesso!");
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+            if (cpf != null && telefone != null && email != null) {
+                Document clienteDocument = new Document()
+                        .append("nome", nome)
+                        .append("cpf", cpf)
+                        .append("telefone", telefone)
+                        .append("email", email);
+
+                try {
+                    collection.insertOne(clienteDocument);
+                    JOptionPane.showMessageDialog(null, "Cliente inserido com sucesso!");
+                } catch (Exception e) {
+                    System.out.println("Erro ao inserir cliente: " + e.getMessage());
+                }
+            } else {
+                // Usuário clicou em Cancelar durante a entrada de CPF, telefone ou email
+                JOptionPane.showMessageDialog(null, "Operação cancelada pelo usuário.");
+            }
+        } else {
+            // Usuário clicou em Cancelar durante a entrada do nome
+            JOptionPane.showMessageDialog(null, "Operação cancelada pelo usuário.");
         }
     }
 
+
     private static void editar(String id) {
+        if (id == null) {
+            JOptionPane.showMessageDialog(null, "Operação cancelada pelo usuário.");
+            return;
+        }
+
         if (isValidObjectId(id)) {
             Bson filtro = Filters.eq("_id", new ObjectId(id));
             Document clienteExistente = collection.find(filtro).first();
 
             if (clienteExistente != null) {
-                String novoNome = JOptionPane.showInputDialog("Informe o novo nome:");
-                String novoCpf = JOptionPane.showInputDialog("Informe o novo CPF:");
-                String novoTelefone = JOptionPane.showInputDialog("Informe o novo telefone:");
-                String novoEmail = JOptionPane.showInputDialog("Informe o novo e-mail:");
+                String novoNome = obterInputCancelamento("Informe o novo nome:");
+                String novoCpf = obterInputCancelamento("Informe o novo CPF:");
+                String novoTelefone = obterInputCancelamento("Informe o novo telefone:");
+                String novoEmail = obterInputCancelamento("Informe o novo e-mail:");
 
-                Document clienteAtualizado = new Document()
-                        .append("nome", novoNome)
-                        .append("cpf", novoCpf)
-                        .append("telefone", novoTelefone)
-                        .append("email", novoEmail);
+                if (novoNome != null && novoCpf != null && novoTelefone != null && novoEmail != null) {
+                    Document clienteAtualizado = new Document()
+                            .append("nome", novoNome)
+                            .append("cpf", novoCpf)
+                            .append("telefone", novoTelefone)
+                            .append("email", novoEmail);
 
-                collection.replaceOne(filtro, clienteAtualizado);
+                    collection.replaceOne(filtro, clienteAtualizado);
 
-                JOptionPane.showMessageDialog(null, "Cliente editado com sucesso!");
+                    JOptionPane.showMessageDialog(null, "Cliente editado com sucesso!");
+                }
             } else {
                 JOptionPane.showMessageDialog(null, "Cliente não encontrado.");
             }
@@ -95,6 +127,10 @@ public class ClienteRepository {
 
 
     private static void remover(String id) {
+    if (id == null) {
+        JOptionPane.showMessageDialog(null, "Operação cancelada pelo usuário.");
+        return;
+    }
         if (isValidObjectId(id)) {
             Bson filtro = Filters.eq("_id", new ObjectId(id));
             Document clienteExistente = collection.find(filtro).first();
@@ -124,29 +160,21 @@ public class ClienteRepository {
     }
 
     private static void consultar() {
-        // Solicita ao usuário que insira um ID válido
-        String idConsulta = JOptionPane.showInputDialog("Digite o ID para consultar:");
+        FindIterable<Document> documentos = collection.find();
 
-        if (isValidObjectId(idConsulta)) {
-            FindIterable<Document> documentos = collection.find();
+        for (Document documento : documentos) {
+            String id = documento.getObjectId("_id").toString();
+            String nome = documento.getString("nome");
+            String cpf = documento.getString("cpf");
+            String telefone = documento.getString("telefone");
+            String email = documento.getString("email");
 
-            for (Document documento : documentos) {
-                String id = documento.getObjectId("_id").toString();
-                String nome = documento.getString("nome");
-                String cpf = documento.getString("cpf");
-                String telefone = documento.getString("telefone");
-                String email = documento.getString("email");
-
-                System.out.println("Identificador: " + id);
-                System.out.println("Nome: " + nome);
-                System.out.println("CPF: " + cpf);
-                System.out.println("Telefone: " + telefone);
-                System.out.println("E-mail: " + email);
-                System.out.println("------------------------------");
-            }
-        } else {
-            JOptionPane.showMessageDialog(null, "ID inválido. Certifique-se de fornecer um Object ID válido.");
+            System.out.println("Identificador: " + id);
+            System.out.println("Nome: " + nome);
+            System.out.println("CPF: " + cpf);
+            System.out.println("Telefone: " + telefone);
+            System.out.println("E-mail: " + email);
+            System.out.println("------------------------------");
         }
-
     }
 }

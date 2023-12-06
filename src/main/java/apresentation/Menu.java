@@ -45,7 +45,7 @@ public class Menu {
         int i = 0;
 
         for (TipoCadastro tipo : values) {
-            options[i++] = tipo.getNome();
+            options[i++] = tipo.toString();
         }
 
         int escolha = JOptionPane.showOptionDialog(

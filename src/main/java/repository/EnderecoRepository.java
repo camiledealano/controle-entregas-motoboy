@@ -43,17 +43,64 @@ public class EnderecoRepository {
                     sair = true;
                     break;
             }
+            if (sair) {
+                break;
+            }
         }
     }
 
+    private static String obterInputCancelamento(String mensagem) {
+        String input = JOptionPane.showInputDialog(mensagem);
+
+        if (input == null) {
+            JOptionPane.showMessageDialog(null, "Operação cancelada pelo usuário.");
+            return null;
+        }
+
+        return input;
+    }
     private static void adicionar() {
-        String logradouro = JOptionPane.showInputDialog("Cadastro de endereço \n\n Informe o logradouro:");
-        String cep        = JOptionPane.showInputDialog("Cadastro de endereço \n\n Informe o CEP:");
-        Integer numero    = Integer.parseInt(JOptionPane.showInputDialog("Cadastro de endereço \n\n Informe o número:"));
-        String bairro     = JOptionPane.showInputDialog("Cadastro de endereço \n\n Informe o bairro:");
-        String cidade     = JOptionPane.showInputDialog("Cadastro de endereço \n\n Informe a cidade:");
-        String estado     = JOptionPane.showInputDialog("Cadastro de endereço \n\n Informe o estado:");
-        String pais       = JOptionPane.showInputDialog("Cadastro de endereço \n\n Informe o pais:");
+        String logradouro = obterInputCancelamento("Cadastro de endereço \n\n Informe o logradouro:");
+        if (logradouro == null) {
+            return; // Operação cancelada pelo usuário
+        }
+
+        String cep = obterInputCancelamento("Cadastro de endereço \n\n Informe o CEP:");
+        if (cep == null) {
+            return;
+        }
+
+        Integer numero = null;
+        try {
+            String numeroInput = obterInputCancelamento("Cadastro de endereço \n\n Informe o número:");
+            if (numeroInput == null) {
+                return;
+            }
+            numero = Integer.parseInt(numeroInput);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Número inválido. Certifique-se de fornecer um valor numérico válido.");
+            return;
+        }
+
+        String bairro = obterInputCancelamento("Cadastro de endereço \n\n Informe o bairro:");
+        if (bairro == null) {
+            return;
+        }
+
+        String cidade = obterInputCancelamento("Cadastro de endereço \n\n Informe a cidade:");
+        if (cidade == null) {
+            return;
+        }
+
+        String estado = obterInputCancelamento("Cadastro de endereço \n\n Informe o estado:");
+        if (estado == null) {
+            return;
+        }
+
+        String pais = obterInputCancelamento("Cadastro de endereço \n\n Informe o país:");
+        if (pais == null) {
+            return;
+        }
 
         Document enderecoDocument = new Document()
                 .append("logradouro", logradouro)
@@ -68,42 +115,74 @@ public class EnderecoRepository {
 
         JOptionPane.showMessageDialog(null, "Endereço inserido com sucesso!");
     }
-
     private static void editar(String id) {
-        if (isValidObjectId(id) && enderecoExiste(id)) {
-            String novoLogradouro = JOptionPane.showInputDialog("Informe o novo logradouro:");
-            String novoCep = JOptionPane.showInputDialog("Informe o novo cep:");
-            Integer novoNumero = Integer.parseInt(JOptionPane.showInputDialog("Informe o novo número:"));
-            String novoBairro = JOptionPane.showInputDialog("Informe o novo bairro:");
-            String novaCidade = JOptionPane.showInputDialog("Informe a nova cidade:");
-            String novoEstado = JOptionPane.showInputDialog("Informe o novo estado:");
-            String novoPais = JOptionPane.showInputDialog("Informe o novo país:");
-
-            Document enderecoAtualizado = new Document()
-                    .append("logradouro", novoLogradouro)
-                    .append("cep", novoCep)
-                    .append("numero", novoNumero)
-                    .append("bairro", novoBairro)
-                    .append("cidade", novaCidade)
-                    .append("estado", novoEstado)
-                    .append("pais", novoPais);
-
-            collection.replaceOne(getFiltro(id), enderecoAtualizado);
-
-            JOptionPane.showMessageDialog(null, "Endereço editado com sucesso!");
-        } else {
-            JOptionPane.showMessageDialog(null, "Id inválido ou Endereço não encontrado.");
+        if (id == null) {
+            JOptionPane.showMessageDialog(null, "Operação cancelada pelo usuário.");
+            return;
         }
-    }
 
-    private static void remover(String id) {
         if (isValidObjectId(id) && enderecoExiste(id)) {
-            collection.deleteOne(getFiltro(id));
-            JOptionPane.showMessageDialog(null, "Endereço removido com sucesso!");
+            String novoLogradouro = obterInputCancelamento("Informe o novo logradouro:");
+            String novoCep = obterInputCancelamento("Informe o novo cep:");
+
+            Integer novoNumero = null;
+            try {
+                String novoNumeroInput = obterInputCancelamento("Informe o novo número:");
+                if (novoNumeroInput != null) {
+                    novoNumero = Integer.parseInt(novoNumeroInput);
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Número inválido. Certifique-se de fornecer um valor numérico válido.");
+                return;
+            }
+
+            String novoBairro = obterInputCancelamento("Informe o novo bairro:");
+            String novaCidade = obterInputCancelamento("Informe a nova cidade:");
+            String novoEstado = obterInputCancelamento("Informe o novo estado:");
+            String novoPais = obterInputCancelamento("Informe o novo país:");
+
+            if (novoLogradouro != null && novoCep != null && novoNumero != null && novoBairro != null && novaCidade != null && novoEstado != null && novoPais != null) {
+                Document enderecoAtualizado = new Document()
+                        .append("logradouro", novoLogradouro)
+                        .append("cep", novoCep)
+                        .append("numero", novoNumero)
+                        .append("bairro", novoBairro)
+                        .append("cidade", novaCidade)
+                        .append("estado", novoEstado)
+                        .append("pais", novoPais);
+
+                collection.replaceOne(getFiltro(id), enderecoAtualizado);
+
+                JOptionPane.showMessageDialog(null, "Endereço editado com sucesso!");
+            } else {
+                JOptionPane.showMessageDialog(null, "Operação cancelada pelo usuário.");
+            }
         } else {
             JOptionPane.showMessageDialog(null, "ID inválido ou Endereço não encontrado.");
         }
     }
+
+
+    private static void remover(String id) {
+        if (id == null) {
+            JOptionPane.showMessageDialog(null, "Operação cancelada pelo usuário.");
+            return;
+        }
+
+        if (isValidObjectId(id) && enderecoExiste(id)) {
+            int opcao = JOptionPane.showConfirmDialog(null, "Tem certeza que deseja remover este endereço?", "Confirmação", JOptionPane.YES_NO_OPTION);
+
+            if (opcao == JOptionPane.YES_OPTION) {
+                collection.deleteOne(getFiltro(id));
+                JOptionPane.showMessageDialog(null, "Endereço removido com sucesso!");
+            } else {
+                JOptionPane.showMessageDialog(null, "Remoção cancelada pelo usuário.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "ID inválido ou Endereço não encontrado.");
+        }
+    }
+
 
     private static void consultar() {
         FindIterable<Document> documentos = collection.find();
